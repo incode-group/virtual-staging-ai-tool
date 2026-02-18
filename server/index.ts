@@ -12,14 +12,6 @@ declare module "http" {
   }
 }
 
-app.use(
-  express.json({
-    verify: (req, _res, buf) => {
-      req.rawBody = buf;
-    },
-  }),
-);
-
 app.use(express.urlencoded({ extended: false }));
 
 export function log(message: string, source = "express") {
