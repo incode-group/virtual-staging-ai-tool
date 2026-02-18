@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { type StagingProject } from "@shared/schema";
 import { ImageUpload } from "@/components/image-upload";
@@ -44,11 +44,17 @@ export default function Home() {
         reader.readAsDataURL(selectedFile);
       });
 
-      const res = await apiRequest("POST", "/api/staging", {
-        image: base64,
-        roomType,
-        style,
+      const res = await fetch("/api/staging", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: base64, roomType, style }),
       });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "Staging failed. Please try again.");
+      }
+
       return (await res.json()) as StagingProject;
     },
     onSuccess: (project) => {

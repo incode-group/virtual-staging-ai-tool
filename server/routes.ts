@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { openai } from "./replit_integrations/image/client";
+import { toFile } from "openai";
 import express from "express";
 
 export async function registerRoutes(
@@ -64,14 +65,17 @@ export async function registerRoutes(
       try {
         const prompt = `You are a professional interior designer. Take this photo of an empty ${roomType.toLowerCase()} and add beautiful, realistic ${style.toLowerCase()} style furniture and decor. Include appropriate furniture like ${getFurnitureForRoom(roomType)}, all in a cohesive ${style.toLowerCase()} aesthetic. The furniture should look naturally placed and the lighting should match the room. Make it look like a real professionally staged room, photorealistic quality.`;
 
+        const imageBuffer = Buffer.from(image, "base64");
+        const uploadableImage = await toFile(imageBuffer, "room.png", { type: "image/png" });
+
         const response = await openai.images.edit({
           model: "gpt-image-1",
-          image: Buffer.from(image, "base64"),
+          image: [uploadableImage],
           prompt,
           size: "1024x1024",
         });
 
-        const stagedImageBase64 = response.data[0]?.b64_json ?? "";
+        const stagedImageBase64 = response.data?.[0]?.b64_json ?? "";
 
         if (!stagedImageBase64) {
           await storage.updateStagingProject(project.id, { status: "failed" });
@@ -91,7 +95,11 @@ export async function registerRoutes(
       } catch (aiError: any) {
         console.error("AI staging error:", aiError);
         await storage.updateStagingProject(project.id, { status: "failed" });
-        res.status(500).json({ error: "AI staging failed. Please try again." });
+        const errorMessage = aiError?.error?.message || aiError?.message || "AI staging failed. Please try again.";
+        const userMessage = errorMessage.includes("Invalid image")
+          ? "The image format is not supported. Please upload a valid JPEG or PNG photo."
+          : "AI staging failed. Please try again.";
+        res.status(500).json({ error: userMessage });
       }
     } catch (error) {
       console.error("Error creating staging project:", error);
