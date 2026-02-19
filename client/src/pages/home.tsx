@@ -28,10 +28,14 @@ export default function Home() {
   const [preview, setPreview] = useState<string | null>(null);
   const [roomType, setRoomType] = useState("Living Room");
   const [style, setStyle] = useState("Modern");
-  const [activeProject, setActiveProject] = useState<StagingProject | null>(null);
+  const [activeProject, setActiveProject] = useState<StagingProject | null>(
+    null,
+  );
   const { toast } = useToast();
 
-  const { data: projects = [], isLoading: projectsLoading } = useQuery<StagingProject[]>({
+  const { data: projects = [], isLoading: projectsLoading } = useQuery<
+    StagingProject[]
+  >({
     queryKey: ["/api/staging"],
   });
 
@@ -60,10 +64,17 @@ export default function Home() {
     onSuccess: (project) => {
       setActiveProject(project);
       queryClient.invalidateQueries({ queryKey: ["/api/staging"] });
-      toast({ title: "Staging Complete", description: "Your room has been beautifully staged!" });
+      toast({
+        title: "Staging Complete",
+        description: "Your room has been beautifully staged!",
+      });
     },
     onError: (error: Error) => {
-      toast({ title: "Staging Failed", description: error.message, variant: "destructive" });
+      toast({
+        title: "Staging Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -106,10 +117,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4 h-14">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary">
-                <Layers className="h-4 w-4 text-primary-foreground" />
+              <div className="w-[40px] mr-[3px]">
+                <img src="https://res.cloudinary.com/dgw6mlivg/image/upload/v1771488642/incode-group-white-logo_y8s8l0.png" />
               </div>
-              <span className="font-semibold text-lg tracking-tight" data-testid="text-app-title">
+              <span
+                className="font-semibold text-lg tracking-tight"
+                data-testid="text-app-title"
+              >
                 Virtual Staging
               </span>
             </div>
@@ -129,8 +143,8 @@ export default function Home() {
               Stage any room in seconds
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-lg mx-auto">
-              Upload a photo of an empty room and our AI will fill it with beautiful furniture
-              matching your chosen style.
+              Upload a photo of an empty room and our AI will fill it with
+              beautiful furniture matching your chosen style.
             </p>
           </div>
         )}
@@ -152,12 +166,17 @@ export default function Home() {
                     <div>
                       <h2 className="text-lg font-semibold">Staged Result</h2>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant="secondary">{activeProject.roomType}</Badge>
+                        <Badge variant="secondary">
+                          {activeProject.roomType}
+                        </Badge>
                         <Badge variant="secondary">{activeProject.style}</Badge>
                       </div>
                     </div>
                   </div>
-                  <Button onClick={handleDownload} data-testid="button-download">
+                  <Button
+                    onClick={handleDownload}
+                    data-testid="button-download"
+                  >
                     <Download className="h-4 w-4 mr-2" />
                     Download
                   </Button>
@@ -190,9 +209,15 @@ export default function Home() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                        <span className="text-sm font-medium">AI is staging your room...</span>
+                        <span className="text-sm font-medium">
+                          AI is staging your room...
+                        </span>
                       </div>
-                      <Progress value={undefined} className="h-1.5" data-testid="progress-staging" />
+                      <Progress
+                        value={undefined}
+                        className="h-1.5"
+                        data-testid="progress-staging"
+                      />
                       <p className="text-xs text-muted-foreground">
                         This may take up to 30 seconds
                       </p>
@@ -226,7 +251,9 @@ export default function Home() {
                             <StepIcon className="h-5 w-5 text-primary" />
                           </div>
                           <p className="text-sm font-medium">{step.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{step.desc}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {step.desc}
+                          </p>
                         </Card>
                       );
                     })}
